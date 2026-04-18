@@ -1,0 +1,26 @@
+# === MAVEN ===
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# === JAVA ===
+*.class
+*.log
+*.jar
+*.war
+*.ear
+
+# === INTELLIJ IDEA ===
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# === OS ===
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# === Gradle ===
+gradle/
+build/
