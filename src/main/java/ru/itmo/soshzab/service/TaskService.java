@@ -13,7 +13,7 @@ public class TaskService {
 
     public Task addTask(String text, TaskPriority priority, TaskStatus status,
                         Instant deadline, String assignee, String owner) {
-        TaskValidator.validateTask(text, priority, status, deadline, assignee);
+        TaskValidator.validateTask(text, String.valueOf(priority) , String.valueOf(status), deadline, assignee);
         Task task = new Task(text, priority, status, deadline, assignee, owner);
         task.setId(idGenerator.nextId());
         tasks.put(task.getId(), task);
@@ -45,7 +45,7 @@ public class TaskService {
     public void updateTask(long id, String text, TaskPriority priority,
                            TaskStatus status, Instant deadline, String assignee) {
         Task task = getTaskById(id);
-        TaskValidator.validateTaskUpdate(text, priority, status, deadline, assignee);
+        TaskValidator.validateTaskUpdate(text, String.valueOf(priority), String.valueOf(status), deadline, assignee);
         if (text != null) task.setText(text);
         if (priority != null) task.setPriority(priority);
         if (status != null) task.setStatus(status);
@@ -67,7 +67,4 @@ public class TaskService {
         task.setUpdatedAt(Instant.now());
     }
 
-    public int getTaskCount() {
-        return tasks.size();
-    }
 }

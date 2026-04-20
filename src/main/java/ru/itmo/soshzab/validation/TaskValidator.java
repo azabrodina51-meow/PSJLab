@@ -15,15 +15,25 @@ public class TaskValidator {
         }
     }
 
-    public static void validatePriority(TaskPriority priority) {
+    public static void validatePriority(String priority) {
         if (priority == null) {
-            throw new IllegalArgumentException("Ошибка: приоритет не может быть пустым");
+            throw new IllegalArgumentException("Ошибка: приоритет не может быть null");
+        }
+        try {
+            TaskPriority.valueOf(priority);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Недопустимое значение приоритета");
         }
     }
 
-    public static void validateStatus(TaskStatus status) {
+    public static void validateStatus(String status) {
         if (status == null) {
-            throw new IllegalArgumentException("Ошибка: статус не может быть пустым");
+            throw new IllegalArgumentException("Ошибка: статус не может быть null");
+        }
+        try {
+            TaskStatus.valueOf(status);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Недопустимое значение статуса");
         }
     }
 
@@ -39,7 +49,7 @@ public class TaskValidator {
         }
     }
 
-    public static void validateTask(String text, TaskPriority priority, TaskStatus status,
+    public static void validateTask(String text, String priority, String status,
                                     Instant deadline, String assignee) {
         validateText(text);
         validatePriority(priority);
@@ -48,7 +58,7 @@ public class TaskValidator {
         validateAssignee(assignee);
     }
 
-    public static void validateTaskUpdate(String text, TaskPriority priority, TaskStatus status,
+    public static void validateTaskUpdate(String text, String priority, String status,
                                           Instant deadline, String assignee) {
         if (text != null) {
             validateText(text);
