@@ -17,7 +17,6 @@ public class ChecklistService {
         return item;
     }
 
-    // ✅ Обязательный метод менеджера (п.3)
     public ChecklistItem getItemById(long id) {
         ChecklistItem item = items.get(id);
         if (item == null) {
@@ -34,30 +33,6 @@ public class ChecklistService {
             }
         }
         return result;
-    }
-
-    public int getItemCountByTaskId(long taskId) {
-        int count = 0;
-        for (ChecklistItem item : items.values()) {
-            if (item.getTaskId() == taskId) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    public void deleteItem(long id) {
-        if (!items.containsKey(id)) {
-            throw new IllegalArgumentException("Ошибка: пункт чек-листа с id=" + id + " не найден");
-        }
-        items.remove(id);
-    }
-
-    public void updateItemText(long id, String newText) {
-        ChecklistItem item = getItemById(id);
-        ChecklistItemValidator.validateText(newText);
-        item.setText(newText);
-        item.setUpdatedAt(Instant.now());
     }
 
     public ChecklistItem toggleItemDone(long id) {
