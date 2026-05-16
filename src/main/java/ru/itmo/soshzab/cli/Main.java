@@ -1,12 +1,10 @@
 package ru.itmo.soshzab.cli;
 
 import ru.itmo.soshzab.command.*;
-import ru.itmo.soshzab.service.ChecklistService;
-import ru.itmo.soshzab.service.TaskService;
+import ru.itmo.soshzab.service.*;
+import ru.itmo.soshzab.storage.*;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
     private static final TaskService taskService = new TaskService();
@@ -14,6 +12,7 @@ public class Main {
     private static final Scanner scanner = new Scanner(System.in);
 
     private static final Map<String, Command> COMMAND_MAP = new HashMap<>();
+    private static final SerializationStorage storage = new SerializationStorage();
 
     static {
         COMMAND_MAP.put("task_add", new TaskAddCommand(taskService, scanner));
@@ -26,11 +25,28 @@ public class Main {
         COMMAND_MAP.put("check_add", new CheckAddCommand(taskService, checklistService, scanner));
         COMMAND_MAP.put("check_list", new CheckListCommand(taskService, checklistService));
         COMMAND_MAP.put("check_toggle", new CheckToggleCommand(checklistService));
+        COMMAND_MAP.put("save", new SaveCommand(taskService, checklistService, storage));
+        COMMAND_MAP.put("load", new LoadCommand(taskService, checklistService, storage));
     }
 
     public static void main(String[] args) {
         System.out.println("Лабораторная информационная система");
         System.out.println("Введите help для списка команд");
+
+        if (args.length > 0) {
+            try {
+                String startPath = args[0];
+                SerializationStorage.LabData data = storage.load(startPath);
+                SerializationValidator.validate(data);
+                taskService.replaceAllTasks(data.tasks);
+                checklistService.replaceAllItems(data.items);
+                taskService.syncIdGenerator();
+                checklistService.syncIdGenerator();
+                System.out.println("Автозагрузка: данные восстановлены из " + startPath);
+            } catch (Exception e) {
+                System.out.println("Предупреждение: не удалось загрузить файл при старте (" + e.getMessage() + "). Работа начата с пустой коллекцией.");
+            }
+        }
 
         while (true) {
             System.out.print("> ");
@@ -82,6 +98,8 @@ public class Main {
         System.out.println("  check_add <task_id> - добавить пункт чек-листа");
         System.out.println("  check_list <task_id> - показать пункты чек-листа");
         System.out.println("  check_toggle <item_id> - переключить статус пункта");
+        System.out.println("  save <path> - сохранить данные в файл");
+        System.out.println("  load <path> - загрузить данные из файла");
     }
 
     }
