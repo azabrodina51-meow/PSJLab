@@ -1,8 +1,14 @@
 package ru.itmo.soshzab.domain;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.Instant;
 
-public final class ChecklistItem {
+
+public final class ChecklistItem implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private long id;
     private final long taskId;
     private final String text;
