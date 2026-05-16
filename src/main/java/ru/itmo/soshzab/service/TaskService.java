@@ -67,4 +67,16 @@ public class TaskService {
         task.setUpdatedAt(Instant.now());
     }
 
+    public Map<Long, Task> getTasksMap() { return tasks; }
+
+    public void replaceAllTasks(Map<Long, Task> newTasks) {
+        tasks.clear();
+        tasks.putAll(newTasks);
+    }
+
+    public void syncIdGenerator() {
+        long maxId = tasks.keySet().stream().mapToLong(Long::longValue).max().orElse(0);
+        idGenerator.setCurrentId(maxId + 1);
+    }
+
 }

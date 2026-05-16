@@ -45,4 +45,16 @@ public class ChecklistService {
     public void deleteItemsByTaskId(long taskId) {
         items.values().removeIf(item -> item.getTaskId() == taskId);
     }
+
+    public Map<Long, ChecklistItem> getItemsMap() { return items; }
+
+    public void replaceAllItems(Map<Long, ChecklistItem> newItems) {
+        items.clear();
+        items.putAll(newItems);
+    }
+
+    public void syncIdGenerator() {
+        long maxId = items.keySet().stream().mapToLong(Long::longValue).max().orElse(0);
+        idGenerator.setCurrentId(maxId + 1);
+    }
 }

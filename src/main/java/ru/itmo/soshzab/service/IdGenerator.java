@@ -6,4 +6,8 @@ public class IdGenerator {
     public synchronized long nextId() {
         return currentId++;
     }
+
+    public synchronized void setCurrentId(long id) {
+        this.currentId = id;
+    }
 }
