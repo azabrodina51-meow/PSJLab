@@ -44,8 +44,12 @@ public class TaskValidator {
     }
 
     public static void validateAssignee(String assignee) {
-        if (assignee != null && assignee.trim().isEmpty()) {
-            throw new IllegalArgumentException("Ошибка: имя исполнителя не может быть пустым");
+         if (assignee == null || assignee.trim().isEmpty()) {
+            return;
+        }
+
+        if (assignee.length() > 64) {
+            throw new IllegalArgumentException("Ошибка: имя исполнителя слишком длинное (макс. 64 символа)");
         }
     }
 
