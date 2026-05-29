@@ -33,25 +33,29 @@ public class MainView {
         refreshTable();
     }
 
+
     private void setupTableColumns() {
-        TableColumn<Task, Long> colId = new TableColumn<>("ID");
-        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
-        colId.setPrefWidth(60);
+        TableColumn<Task, Long> colId = createSimpleColumn("ID", "id", 60);
+        TableColumn<Task, String> colText = createSimpleColumn("Текст задачи", "text", 250);
+        TableColumn<Task, String> colPriority = createSimpleColumn("Приоритет", "priority", 100);
+        TableColumn<Task, String> colStatus = createSimpleColumn("Статус", "status", 120);
 
-        TableColumn<Task, String> colText = new TableColumn<>("Текст задачи");
-        colText.setCellValueFactory(new PropertyValueFactory<>("text"));
-        colText.setPrefWidth(250);
+        TableColumn<Task, String> colDeadline = createDeadlineColumn();
+        TableColumn<Task, String> colAssignee = createAssigneeColumn();
 
-        TableColumn<Task, String> colPriority = new TableColumn<>("Приоритет");
-        colPriority.setCellValueFactory(new PropertyValueFactory<>("priority"));
-        colPriority.setPrefWidth(100);
+        tableView.getColumns().addAll(colId, colText, colPriority, colStatus, colDeadline, colAssignee);
+    }
 
-        TableColumn<Task, String> colStatus = new TableColumn<>("Статус");
-        colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
-        colStatus.setPrefWidth(120);
+    private <T> TableColumn<Task, T> createSimpleColumn(String title, String property, double width) {
+        TableColumn<Task, T> col = new TableColumn<>(title);
+        col.setCellValueFactory(new PropertyValueFactory<>(property));
+        col.setPrefWidth(width);
+        return col;
+    }
 
-        TableColumn<Task, String> colDeadline = new TableColumn<>("Дедлайн");
-        colDeadline.setCellValueFactory(cellData -> {
+    private TableColumn<Task, String> createDeadlineColumn() {
+        TableColumn<Task, String> col = new TableColumn<>("Дедлайн");
+        col.setCellValueFactory(cellData -> {
             Instant deadline = cellData.getValue().getDeadlineAt();
             String formatted = (deadline != null)
                     ? DateTimeFormatter.ofPattern("yyyy-MM-dd")
@@ -59,16 +63,18 @@ public class MainView {
                     : "—";
             return new javafx.beans.property.SimpleStringProperty(formatted);
         });
-        colDeadline.setPrefWidth(120);
+        col.setPrefWidth(120);
+        return col;
+    }
 
-        TableColumn<Task, String> colAssignee = new TableColumn<>("Исполнитель");
-        colAssignee.setCellValueFactory(cellData -> {
+    private TableColumn<Task, String> createAssigneeColumn() {
+        TableColumn<Task, String> col = new TableColumn<>("Исполнитель");
+        col.setCellValueFactory(cellData -> {
             String assignee = cellData.getValue().getAssigneeUsername();
             return new javafx.beans.property.SimpleStringProperty(assignee != null ? assignee : "—");
         });
-        colAssignee.setPrefWidth(150);
-
-        tableView.getColumns().addAll(colId, colText, colPriority, colStatus, colDeadline, colAssignee);
+        col.setPrefWidth(150);
+        return col;
     }
 
     private void setupButtonPanel() {
