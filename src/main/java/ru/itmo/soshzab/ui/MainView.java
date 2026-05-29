@@ -111,42 +111,38 @@ public class MainView {
         boolean created = taskFormDialog.showNewTaskDialog();
         if (created) {
             refreshTable();
-            new Alert(Alert.AlertType.INFORMATION, "Задача создана", ButtonType.OK).showAndWait();
+            UIHelper.showInfo("Задача создана");
         }
     }
 
     private void handleEdit() {
         Task selectedTask = tableView.getSelectionModel().getSelectedItem();
         if (selectedTask == null) {
-            new Alert(Alert.AlertType.WARNING, "Выберите задачу для редактирования", ButtonType.OK).showAndWait();
+            UIHelper.showWarning("Выберите задачу для редактирования");
             return;
         }
 
         boolean updated = taskFormDialog.showEditTaskDialog(selectedTask);
         if (updated) {
             refreshTable();
-            new Alert(Alert.AlertType.INFORMATION, "Задача обновлена", ButtonType.OK).showAndWait();
+            UIHelper.showInfo("Задача обновлена");
         }
     }
 
     private void handleDelete() {
         Task selectedTask = tableView.getSelectionModel().getSelectedItem();
         if (selectedTask == null) {
-            new Alert(Alert.AlertType.WARNING, "Выберите задачу для удаления", ButtonType.OK).showAndWait();
+            UIHelper.showWarning("Выберите задачу для удаления");
             return;
         }
 
-        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION,
-                "Удалить задачу #" + selectedTask.getId() + "?", ButtonType.YES, ButtonType.NO);
-        Optional<ButtonType> result = confirmAlert.showAndWait();
-
-        if (result.isPresent() && result.get() == ButtonType.YES) {
+        if (UIHelper.showConfirmation("Удалить задачу #" + selectedTask.getId() + "?")) {
             try {
                 taskService.deleteTask(selectedTask.getId());
                 refreshTable();
-                new Alert(Alert.AlertType.INFORMATION, "Задача удалена", ButtonType.OK).showAndWait();
+                UIHelper.showInfo("Задача удалена");
             } catch (Exception e) {
-                new Alert(Alert.AlertType.ERROR, "Ошибка удаления: " + e.getMessage(), ButtonType.OK).showAndWait();
+                UIHelper.showError("Ошибка удаления: " + e.getMessage());
             }
         }
     }
@@ -154,23 +150,23 @@ public class MainView {
     private void handleDone() {
         Task selectedTask = tableView.getSelectionModel().getSelectedItem();
         if (selectedTask == null) {
-            new Alert(Alert.AlertType.WARNING, "Выберите задачу", ButtonType.OK).showAndWait();
+            UIHelper.showWarning("Выберите задачу");
             return;
         }
 
         try {
             taskService.markTaskDone(selectedTask.getId());
             refreshTable();
-            new Alert(Alert.AlertType.INFORMATION, "Задача #" + selectedTask.getId() + " выполнена", ButtonType.OK).showAndWait();
+            UIHelper.showInfo("Задача #" + selectedTask.getId() + " выполнена");
         } catch (Exception e) {
-            new Alert(Alert.AlertType.ERROR, "Ошибка: " + e.getMessage(), ButtonType.OK).showAndWait();
+            UIHelper.showError("Ошибка: " + e.getMessage());
         }
     }
 
     private void handleAssign() {
         Task selectedTask = tableView.getSelectionModel().getSelectedItem();
         if (selectedTask == null) {
-            new Alert(Alert.AlertType.WARNING, "Выберите задачу", ButtonType.OK).showAndWait();
+            UIHelper.showWarning("Выберите задачу");
             return;
         }
 
@@ -187,9 +183,9 @@ public class MainView {
                 }
                 taskService.updateTask(selectedTask.getId(), null, null, null, null, username.trim());
                 refreshTable();
-                new Alert(Alert.AlertType.INFORMATION, "Задача назначена на " + username, ButtonType.OK).showAndWait();
+                UIHelper.showInfo("Задача назначена на " + username);
             } catch (Exception e) {
-                new Alert(Alert.AlertType.ERROR, "Ошибка назначения: " + e.getMessage(), ButtonType.OK).showAndWait();
+                UIHelper.showError("Ошибка назначения: " + e.getMessage());
             }
         });
     }
@@ -197,7 +193,7 @@ public class MainView {
     private void handleChecklist() {
         Task selectedTask = tableView.getSelectionModel().getSelectedItem();
         if (selectedTask == null) {
-            new Alert(Alert.AlertType.WARNING, "Выберите задачу для управления чек-листом", ButtonType.OK).showAndWait();
+            UIHelper.showWarning("Выберите задачу для управления чек-листом");
             return;
         }
 
@@ -213,7 +209,7 @@ public class MainView {
             taskList.addAll(freshData);
             tableView.setItems(taskList);
         } catch (Exception e) {
-            new Alert(Alert.AlertType.ERROR, "Ошибка обновления: " + e.getMessage(), ButtonType.OK).showAndWait();
+            UIHelper.showError("Ошибка обновления: " + e.getMessage());
         }
     }
 
