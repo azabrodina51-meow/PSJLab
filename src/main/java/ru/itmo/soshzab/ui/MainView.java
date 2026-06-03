@@ -7,7 +7,9 @@ import javafx.scene.control.cell.*;
 import javafx.scene.layout.*;
 import ru.itmo.soshzab.domain.*;
 import ru.itmo.soshzab.service.*;
+import ru.itmo.soshzab.storage.*;
 
+import java.io.*;
 import java.time.*;
 import java.time.format.*;
 import java.util.*;
@@ -17,13 +19,15 @@ public class MainView {
     private final TaskService taskService;
     private final ChecklistService checklistService;
     private final TaskFormDialog taskFormDialog;
+    private final SerializationStorage storage;
 
     private final ObservableList<Task> taskList = FXCollections.observableArrayList();
     private final TableView<Task> tableView = new TableView<>(taskList);
 
-    public MainView(TaskService taskService, ChecklistService checklistService) {
+    public MainView(TaskService taskService, ChecklistService checklistService, SerializationStorage storage) {
         this.taskService = taskService;
         this.checklistService = checklistService;
+        this.storage = storage;
         this.taskFormDialog = new TaskFormDialog(taskService);
 
         setupTableColumns();
@@ -97,13 +101,19 @@ public class MainView {
         Button btnAssign = new Button("👤 Назначить");
         btnAssign.setOnAction(e -> handleAssign());
 
+        Button btnSave = new Button("💾 Сохранить");
+        btnSave.setOnAction(e -> handleSave());
+
+        Button btnLoad = new Button("📂 Загрузить");
+        btnLoad.setOnAction(e -> handleLoad());
+
         Button btnChecklist = new Button("📋 Чек-лист");
         btnChecklist.setOnAction(e -> handleChecklist());
 
         Button btnRefresh = new Button("🔄 Refresh");
         btnRefresh.setOnAction(e -> refreshTable());
 
-        buttonPanel.getChildren().addAll(btnAdd, btnEdit, btnDelete, btnDone, btnAssign, btnChecklist, btnRefresh);
+        buttonPanel.getChildren().addAll(btnAdd, btnEdit, btnDelete, btnDone, btnAssign, btnSave, btnLoad, btnChecklist, btnRefresh);
         root.setBottom(buttonPanel);
     }
 
@@ -200,6 +210,63 @@ public class MainView {
         ChecklistDialog dialog = new ChecklistDialog(selectedTask, checklistService);
         dialog.showDialog();
         refreshTable();
+    }
+
+    private void handleSave() {
+        TextInputDialog dialog = new TextInputDialog("data.bin");
+        dialog.setTitle("Сохранение данных");
+        dialog.setHeaderText("Введите путь к файлу:");
+        dialog.setContentText("Файл:");
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(path -> {
+            try {
+                if (path.trim().isEmpty()) {
+                    throw new IllegalArgumentException("Путь не может быть пустым");
+                }
+
+                storage.save(path, taskService.getTasksMap(), checklistService.getItemsMap());
+                UIHelper.showInfo("Данные успешно сохранены в " + path);
+            } catch (IOException e) {
+                UIHelper.showError("Ошибка сохранения: " + e.getMessage());
+            } catch (IllegalArgumentException e) {
+                UIHelper.showError(e.getMessage());
+            }
+        });
+    }
+
+    private void handleLoad() {
+        TextInputDialog dialog = new TextInputDialog("data.bin");
+        dialog.setTitle("Загрузка данных");
+        dialog.setHeaderText("Введите путь к файлу:");
+        dialog.setContentText("Файл:");
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(path -> {
+            try {
+                if (path.trim().isEmpty()) {
+                    throw new IllegalArgumentException("Путь не может быть пустым");
+                }
+
+                SerializationStorage.LabData data = storage.load(path);
+
+                taskService.replaceAllTasks(data.tasks);
+                checklistService.replaceAllItems(data.items);
+
+                taskService.syncIdGenerator();
+                checklistService.syncIdGenerator();
+
+                refreshTable();
+
+                UIHelper.showInfo("Данные успешно загружены из " + path);
+            } catch (IOException e) {
+                UIHelper.showError("Ошибка загрузки: " + e.getMessage());
+            } catch (IllegalArgumentException e) {
+                UIHelper.showError(e.getMessage());
+            } catch (ClassNotFoundException e) {
+                UIHelper.showError("Неверный формат файла (ошибка сериализации)");
+            }
+        });
     }
 
     public void refreshTable() {
